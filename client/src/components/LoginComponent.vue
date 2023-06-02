@@ -53,8 +53,8 @@
         <router-link to="/register">Sign up here</router-link>
       </p>
     </b-card>
-    <b-card class="mt-3" header="Form Data Result" bg-variant="dark">
-      <pre>{{ form }}</pre>
+    <b-card class="mt-3" bg-variant="dark" v-if="errorMessage">
+      {{ errorMessage }}
     </b-card>
   </div>
 </template>
@@ -91,41 +91,25 @@ export default {
 
   },
   methods: {
-     async onSubmit() {
-       const res = await this.$store.dispatch('login', {...this.form});
-       if (res && res.status === 200) this.$router.push('/');
-       else alert(`Error occurred, code: ${res.status}`);
-     },
-    // onSubmit(event) {
-    //   event.preventDefault()
-    //   // const url = "http://localhost:3000/user/login";
-    //   const url = "http://localhost:3000/auth/";
-    //   axios.post(url, {
-    //     "email": this.form.email,
-    //     "password": this.form.password
-    //   }).then(res => {
-    //     if (res.status === 200) {
-    //       console.log(res)
-    //       this.$store.commit('setLoggedIn', true);
-    //       this.$store.commit('setLocalUser', res.data.user);
-    //       this.$router.push('/')
-    //     } else {
-    //       console.log(res.status);
-    //       this.errorMessage = res.status;
-    //     }
-    //   }).catch(err => {
-    //     if (err) console.log(err);
-    //     this.errorMessage = err;
-    //   });
-    // }
+    async onSubmit() {
+      try {
+        const res = await this.$store.dispatch('login', {...this.form});
+        if (res.status === 200) await this.$router.push('/');
+      } catch (err) {
+        this.showErrorMessage(err);
+      }
+    },
+    showErrorMessage(msg) {
+      this.errorMessage = msg;
+      setTimeout(() => {
+        this.errorMessage = '';
+      }, 6000);
+    },
   }
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
-
 h1 {
   text-align: center;
 }

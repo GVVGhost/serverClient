@@ -25,6 +25,7 @@ const index = new Vuex.Store({
             this.commit('setLocalUser', loginResponse.data.user);
             this.commit('setLoggedIn', true);
             localStorage.setItem('access_token', loginResponse.data.access_token);
+            localStorage.setItem('userId', loginResponse.data.user.id)
             return loginResponse;
         },
         async registration(state, payload) {
@@ -36,7 +37,7 @@ const index = new Vuex.Store({
                     return err;
                 });
             if (response && response.status === 200) {
-                console.log('fetch profile responce: ', response);
+                console.log('fetch profile response: ', response);
                 this.commit('setLocalUser', response.data);
             }
         },

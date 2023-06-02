@@ -21,7 +21,7 @@ module.exports = async (req, res) => {
         process.env.PRIVATE_KEY_FOR_JWT,
         {expiresIn: '360h'}
     );
-    console.log('access_token:', access_token);
+    // console.log('access_token:', access_token);
 
     res.status(200).send({access_token, user});
 }

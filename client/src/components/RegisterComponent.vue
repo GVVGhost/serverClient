@@ -78,12 +78,12 @@
 
       </b-form>
 
-      <p class="mt-5">
+      <p class="mt-3">
         <router-link to="/login">Go back</router-link>
       </p>
     </b-card>
-    <b-card class="mt-3" header="Form Data Result" bg-variant="dark">
-      <pre class="m-0">{{ form }}</pre>
+    <b-card class="mt-3" bg-variant="dark" v-if="errorMessage">
+      {{ errorMessage }}
     </b-card>
 
 
@@ -103,47 +103,31 @@ export default {
         email: '',
         password: '',
       },
+      errorMessage: '',
     }
   },
-  methods: {
-    async onSubmit() {
+  methods: {async onSubmit() {
       const data = {
         "name": `${this.form.firstName.trim()} ${this.form.secondName.trim()}`,
         "email": this.form.email.trim(),
         "password": this.form.password.trim()
       };
-      const register = await this.$store.dispatch('registration', data);
-      console.log('register result: ', register);
-      if (register.status === 200) {
-        const login = await this.$store.dispatch('login', {...this.form});
-        if (login && login.status === 200) this.$router.push('/');
-        else alert(`Error occurred, code: ${login.status}`);
+      try {
+        const register = await this.$store.dispatch('registration', data);
+        console.log('register result: ', register);
+        if (register.status === 200) {
+          const login = await this.$store.dispatch('login', {...this.form});
+          if (login.status === 200) await this.$router.push('/');
+        }
+      } catch (err) {
+        this.showErrorMessage(err);
       }
-    },
-    onReset() {
-
-    },
-    // onSubmit(event) {
-    //   console.log('event', event);
-    //   event.preventDefault()
-    //   axios.post('http://localhost:3000/user/', {
-    //     "name": `${this.form.firstName} ${this.form.secondName}`,
-    //     "email": this.form.email.trim(),
-    //     "password": this.form.password.trim()
-    //   }).then((res) => {
-    //     if (res.status === 200) {
-    //       this.$store.commit('setLoggedIn', true);
-    //       console.log(res);
-    //       this.$store.commit('setLocalUser', res.data);
-    //       this.$router.push('/')
-    //     } else {
-    //       console.log('Something went wrong');
-    //     }
-    //   }).catch((err) => {
-    //     if (err) console.log(err)
-    //   });
-    // },
-  },
+    }, showErrorMessage(msg) {
+      this.errorMessage = msg;
+      setTimeout(() => {
+        this.errorMessage = '';
+      }, 6000);
+    },},
   computed: {
     isButtonDisabled() {
       return !(this.isEmailValid
@@ -168,7 +152,6 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 
 b-form-input {

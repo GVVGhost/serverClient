@@ -9,7 +9,10 @@ module.exports = {
     },
 
     async findById(req, res, next) {
+        console.log("req", req.params.id);
         const existUser = await UserModel.findByPk(req.params.id);
+        console.log("existUser", existUser);
+
         if (existUser) res.status(200).send(existUser);
         else res.status(400).send({message: 'user not found'});
     },
@@ -21,15 +24,6 @@ module.exports = {
             res.status(400).send('User is not created');
         });
         res.status(200).send(user);
-    },
-
-    async findByEmailAndPassword(req, res, next) {
-        const data = {...req.body};
-        const existedUser = await UserModel.findAll({where: {'email': data.email}});
-        if (!existedUser.length) res.status(404).send({message: 'User not found'});
-        const isValid = await bcrypt.compare(data.password, existedUser[0].dataValues.password);
-        if (isValid) res.status(200).send(existedUser[0]);
-        else res.status(401).send();
     },
 
     async update(req, res, next) {
