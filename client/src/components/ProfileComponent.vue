@@ -58,7 +58,7 @@ export default {
     showUserData() {
       axios.get('/user/' + localStorage.getItem('userId'))
           .then((res) => {
-            console.log(res.data);
+            // console.log(res.data);
             this.$store.commit('setLocalUser', res.data);
           }).catch((err) => console.log(err));
 

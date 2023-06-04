@@ -9,10 +9,7 @@ module.exports = {
     },
 
     async findById(req, res, next) {
-        console.log("req", req.params.id);
         const existUser = await UserModel.findByPk(req.params.id);
-        console.log("existUser", existUser);
-
         if (existUser) res.status(200).send(existUser);
         else res.status(400).send({message: 'user not found'});
     },

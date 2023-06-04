@@ -7,12 +7,14 @@ module.exports = async (req, res) => {
         .catch(err => res.status(400).send({message: "Bad request"}));
 
     if (!user) {
+        console.log('User not found');
         res.status(404).send({message: "User not found"});
         return;
     }
 
     const isEqual = await bcrypt.compare(req.body.password, user.password);
     if (!isEqual) {
+        console.log('unauthorized');
         res.status(401).send({message: "unauthorized"});
         return;
     }

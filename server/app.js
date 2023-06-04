@@ -33,6 +33,23 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use((req, res, next) => {
+    if (req.url !== '/auth') {
+        const token = req.headers.authorization;
+        console.log('token: ', token)
+        try {
+            const decoded = jwt.verify(
+                token.replace(/^Bearer\s+/, ""),
+                process.env.PRIVATE_KEY_FOR_JWT
+            );
+            if (decoded.exp > Date.now()) return res.status(498).send()
+            next();
+        } catch (err) {
+            res.status(401).send();
+        }
+    } else next();
+});
+
 app.use('/customer', customerRouter);
 app.use('/user', userRouter);
 app.use('/auth', authRouter);
