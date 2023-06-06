@@ -63,8 +63,7 @@ sequelize.authenticate()
         await dbSync();
         // require('./database/init/navigationInit')();
         console.log('Connection to database has been established successfully.');
-    })
-    .catch((err) => console.error('Unable to connect to the database:', err));
+    }).catch((err) => console.error('Unable to connect to the database:', err));
 
 app.listen(process.env.SERVER_PORT, () => {
     console.log(`Server works on http://localhost:${process.env.SERVER_PORT}`);

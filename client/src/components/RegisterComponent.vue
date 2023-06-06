@@ -91,6 +91,7 @@
 </template>
 
 <script>
+import debounce from "debounce";
 
 export default {
   name: 'RegisterComponent',
@@ -104,9 +105,21 @@ export default {
         password: '',
       },
       errorMessage: '',
+      isEmailValid: true,
+      isPasswordValid: true,
     }
   },
-  methods: {async onSubmit() {
+  watch: {
+    'form.email': debounce(function () {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      this.isEmailValid = emailRegex.test(this.form.email);
+    }, 1500),
+    'form.password': debounce(function () {
+      this.isPasswordValid = (this.form.password.length >= 4)
+    }, 1500)
+  },
+  methods: {
+    async onSubmit() {
       const data = {
         "name": `${this.form.firstName.trim()} ${this.form.secondName.trim()}`,
         "email": this.form.email.trim(),
@@ -122,25 +135,21 @@ export default {
       } catch (err) {
         this.showErrorMessage(err);
       }
-    }, showErrorMessage(msg) {
+    }
+    ,
+    showErrorMessage(msg) {
       this.errorMessage = msg;
       setTimeout(() => {
         this.errorMessage = '';
       }, 6000);
-    },},
+    },
+  },
   computed: {
     isButtonDisabled() {
       return !(this.isEmailValid
           && this.isPasswordValid
           && this.isFirstNameValid
           && this.isSecondNameValid);
-    },
-    isEmailValid() {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      return emailRegex.test(this.form.email);
-    },
-    isPasswordValid() {
-      return (this.form.password.length >= 4)
     },
     isFirstNameValid() {
       return !!(this.form.firstName.trim());

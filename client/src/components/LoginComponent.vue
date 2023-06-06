@@ -44,7 +44,7 @@
           <b-button class="mx-1" @click="onSubmit" variant="outline-primary" :disabled="isButtonDisabled">
             Sign up
           </b-button>
-          <b-button class="mx-1" type="reset" variant="outline-warning">Reset</b-button>
+          <b-button class="mx-1" @click="onReset" variant="outline-warning">Reset</b-button>
         </div>
 
       </b-form>
@@ -61,6 +61,7 @@
 
 <script>
 
+import debounce from "debounce";
 
 export default {
   name: 'LoginComponent',
@@ -71,7 +72,9 @@ export default {
         password: '',
       },
       errorMessage: '',
-      show: true
+      show: true,
+      isEmailValid: true,
+      isPasswordValid: true,
     }
   },
   computed: {
@@ -81,14 +84,15 @@ export default {
     isButtonDisabled() {
       return !(this.isEmailValid && this.isPasswordValid);
     },
-    isEmailValid() {
+  },
+  watch: {
+    'form.email': debounce(function () {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      return emailRegex.test(this.form.email);
-    },
-    isPasswordValid() {
-      return (this.form.password.length >= 4)
-    },
-
+      this.isEmailValid = emailRegex.test(this.form.email);
+    }, 1500),
+    'form.password': debounce(function () {
+      this.isPasswordValid = (this.form.password.length >= 4)
+    }, 1500)
   },
   methods: {
     async onSubmit() {
@@ -105,6 +109,10 @@ export default {
         this.errorMessage = '';
       }, 6000);
     },
+    onReset() {
+      this.form.email = "";
+      this.form.password = "";
+    }
   }
 }
 </script>
