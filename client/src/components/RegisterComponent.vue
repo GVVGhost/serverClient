@@ -4,80 +4,31 @@
       <h1>Sign up</h1>
       <p>Please fill all fields below to proceed</p>
       <b-form>
-        <b-form-group
-            id="email"
-            label="Email address:"
-            label-for="email-input"
-            :state="isEmailValid"
-            class="my-3">
-          <b-form-input
-              id="email-input"
-              v-model="form.email"
-              type="email"
-              placeholder="Enter email"
-              class="bg-dark text-white"
-              required></b-form-input>
-          <b-form-invalid-feedback :state="isEmailValid || !form.email.trim()">
-            Please enter a valid email
+        <b-form-group v-for="(item, index) in inputs" :key="index"
+                      :id="item.name"
+                      :state="states[index].value"
+                      class="my-3"
+                      :label="`${capitalize(replaceN(item.name))}:`"
+                      :label-for="`${item.name}-input`">
+          <b-form-input :id="`${item.name}-input`"
+                        v-model="item.value"
+                        class="bg-dark text-white"
+                        :placeholder="`Enter ${replaceN(item.name)}`"
+                        required
+                        :type="`${typeOfInput(item.name)}`"></b-form-input>
+          <b-form-invalid-feedback v-if="(item.name === 'email' || item.name === 'password')"
+                                   :state="states[index].value || !item.value.trim()">
+            Please enter a valid {{ item.name }}
           </b-form-invalid-feedback>
         </b-form-group>
 
-        <b-form-group
-            id="password"
-            label="Password:"
-            label-for="password-input"
-            :state="isPasswordValid"
-            class="my-3">
-          <b-form-input
-              id="password-input"
-              v-model="form.password"
-              type="password"
-              placeholder="Enter password"
-              class="bg-dark text-white"
-              required></b-form-input>
-          <b-form-invalid-feedback :state="!form.password.trim() || isPasswordValid">
-            Your password must be at least 4 characters long
-          </b-form-invalid-feedback>
-        </b-form-group>
-
-        <b-form-group
-            id="firstName"
-            label="First name:"
-            label-for="firstName-input"
-            :state="isFirstNameValid"
-            class="my-3">
-          <b-form-input
-              id="firstName-input"
-              v-model="form.firstName"
-              type="text"
-              placeholder="Enter first name"
-              class="bg-dark text-white"
-              required></b-form-input>
-        </b-form-group>
-
-        <b-form-group
-            id="secondName"
-            label="Second name:"
-            label-for="secondName-input"
-            :state="isSecondNameValid"
-            class="my-3">
-          <b-form-input
-              id="secondName-input"
-              v-model="form.secondName"
-              type="text"
-              placeholder="Enter second name"
-              class="bg-dark text-white"
-              required></b-form-input>
-        </b-form-group>
         <div style="width: max-content; margin: 0 auto;">
           <b-button class="mx-1" @click="onSubmit" variant="outline-primary" :disabled="isButtonDisabled">
             Sign up
           </b-button>
           <b-button class="mx-1" type="reset" variant="outline-warning">Reset</b-button>
         </div>
-
       </b-form>
-
       <p class="mt-3">
         <router-link to="/login">Go back</router-link>
       </p>
@@ -85,8 +36,6 @@
     <b-card class="mt-3" bg-variant="dark" v-if="errorMessage">
       {{ errorMessage }}
     </b-card>
-
-
   </div>
 </template>
 
@@ -97,46 +46,84 @@ export default {
   name: 'RegisterComponent',
   data() {
     return {
-      show: true,
-      form: {
-        firstName: '',
-        secondName: '',
-        email: '',
-        password: '',
-      },
       errorMessage: '',
-      isEmailValid: true,
-      isPasswordValid: true,
+      isButtonDisabled: true,
+      inputs: [
+        {name: 'email', value: ''},
+        {name: 'password', value: ''},
+        {name: 'firstName', value: ''},
+        {name: 'secondName', value: ''},
+      ],
+      states: [
+        {value: true},
+        {value: true},
+        {value: true},
+        {value: true},
+      ]
     }
   },
   watch: {
-    'form.email': debounce(function () {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      this.isEmailValid = emailRegex.test(this.form.email);
-    }, 1500),
-    'form.password': debounce(function () {
-      this.isPasswordValid = (this.form.password.length >= 4)
-    }, 1500)
+    inputs: {
+      handler: debounce(function (val) {
+        for (let i = 0; i < val.length; i++) {
+          let item = this.inputs[i];
+          switch (item.name) {
+            case "email":
+              this.states[i].value = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(item.value);
+              break;
+            case "password":
+              this.states[i].value = (item.value.length >= 4)
+              break;
+            case "firstName":
+            case "secondName":
+              this.states[i].value = !!(item.value.trim());
+              break;
+          }
+        }
+      }, 1500),
+      deep: true
+    },
+    states: {
+      handler: function () {
+        this.isButtonDisabled = !this.states.every(el => el.value === true);
+      }, deep: true
+    }
   },
   methods: {
     async onSubmit() {
-      const data = {
-        "name": `${this.form.firstName.trim()} ${this.form.secondName.trim()}`,
-        "email": this.form.email.trim(),
-        "password": this.form.password.trim()
-      };
+      const data = this.makeRegisterData();
       try {
         const register = await this.$store.dispatch('registration', data);
-        console.log('register result: ', register);
         if (register.status === 200) {
-          const login = await this.$store.dispatch('login', {...this.form});
+          const login = await this.$store.dispatch('login', {
+            "email": this.getValue(this.inputs, 'email'),
+            "password": this.getValue(this.inputs, 'password')
+          });
           if (login.status === 200) await this.$router.push('/');
         }
       } catch (err) {
         this.showErrorMessage(err);
       }
-    }
-    ,
+    },
+    replaceN(line) {
+      return line.replace('N', ' n');
+    },
+    capitalize(line) {
+      return line.charAt(0).toUpperCase() + line.slice(1);
+    },
+    typeOfInput(line) {
+      return (line === 'email' || line === 'password') ? line : 'text'
+    },
+    makeRegisterData() {
+      return {
+        "name": `${this.getValue(this.inputs, 'firstName')} ${this.getValue(this.inputs, 'secondName')}`,
+        "email": this.getValue(this.inputs, 'email'),
+        "password": this.getValue(this.inputs, 'password')
+      };
+    },
+    getValue(item, name) {
+      return item.find(el => el.name === name).value;
+    },
     showErrorMessage(msg) {
       this.errorMessage = msg;
       setTimeout(() => {
@@ -144,20 +131,6 @@ export default {
       }, 6000);
     },
   },
-  computed: {
-    isButtonDisabled() {
-      return !(this.isEmailValid
-          && this.isPasswordValid
-          && this.isFirstNameValid
-          && this.isSecondNameValid);
-    },
-    isFirstNameValid() {
-      return !!(this.form.firstName.trim());
-    },
-    isSecondNameValid() {
-      return !!(this.form.secondName.trim());
-    }
-  }
 }
 </script>
 

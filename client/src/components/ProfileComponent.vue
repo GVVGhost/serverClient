@@ -54,7 +54,6 @@ export default {
     this.showUserData();
   },
   methods: {
-
     showUserData() {
       axios.get('/user/' + localStorage.getItem('userId'))
           .then((res) => {

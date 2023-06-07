@@ -37,8 +37,6 @@ export default {
   },
   methods: {
     fetchCustomers() {
-      // console.log('local storage token:', localStorage.getItem("access_token"));
-      // console.log('local storage id:', localStorage.getItem("userId"));
       axios.get('/customer/')
           .then((res) => this.data = res.data)
           .catch((err) => console.log(err));
