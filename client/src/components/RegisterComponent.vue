@@ -26,7 +26,7 @@
           <b-button class="mx-1" @click="onSubmit" variant="outline-primary" :disabled="isButtonDisabled">
             Sign up
           </b-button>
-          <b-button class="mx-1" type="reset" variant="outline-warning">Reset</b-button>
+          <b-button class="mx-1" @click="onReset" type="reset" variant="outline-warning">Reset</b-button>
         </div>
       </b-form>
       <p class="mt-3">
@@ -130,6 +130,9 @@ export default {
         this.errorMessage = '';
       }, 6000);
     },
+    onReset() {
+      this.inputs.forEach(el => el.value = '');
+    }
   },
 }
 </script>
