@@ -12,6 +12,16 @@ const express = require('express');
 const cors = require('cors')
 const app = express();
 
+app.use((req, res, next) => {
+    console.log('---Incoming request:');
+    console.log('Method:', req.method);
+    console.log('URL:', req.url);
+    console.log('Headers:', req.headers);
+    console.log('Body:', req.body);
+    console.log('---');
+    next();
+});
+
 const corsOptions = {
     origin: process.env.ALLOW_ORIGIN,
     methods: ['OPTIONS, GET, POST, PUT, PATCH, DELETE'],
@@ -22,16 +32,6 @@ const corsOptions = {
 app.use(cors(corsOptions))
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
-
-app.use((req, res, next) => {
-    console.log('---Incoming request:');
-    console.log('Method:', req.method);
-    console.log('URL:', req.url);
-    console.log('Headers:', req.headers);
-    console.log('Body:', req.body);
-    console.log('---');
-    next();
-});
 
 app.use((req, res, next) => {
     if (req.url !== '/auth') {
