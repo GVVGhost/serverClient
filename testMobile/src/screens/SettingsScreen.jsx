@@ -28,8 +28,10 @@ function SettingsScreen() {
     <View style={GlobalStyles.container}>
       <View style={{margin: 12, flexDirection: 'column'}}>
         <View style={CardItemsStyles.container}>
-          <Text style={CardItemsStyles.title}>Current user: </Text>
-          <Text style={CardItemsStyles.value}>{userName}</Text>
+          <Text style={CardItemsStyles.title}>
+            Current application version: 1.0.0
+          </Text>
+          <Text style={CardItemsStyles.value}>Current user: {userName}</Text>
         </View>
         <View style={{marginVertical: 10}} />
         <LongPressButton

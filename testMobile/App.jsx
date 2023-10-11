@@ -18,7 +18,8 @@ export default class App extends Component<Props> {
 
     // eslint-disable-next-line no-undef
     updater = new UpdateAPK.UpdateAPK({
-      apkVersionUrl: '',
+      apkVersionUrl:
+        'https://raw.githubusercontent.com/GVVGhost/serverClient/main/testMobile/test-version.json',
       apkVersionOptions: {
         method: 'GET',
         headers: {},
@@ -71,14 +72,14 @@ export default class App extends Component<Props> {
   async componentDidMount() {
     UpdateAPK.getApps()
       .then(apps => {
-        console.log('Installed Apps: ', JSON.stringify(apps));
+        // console.log('Installed Apps: ', JSON.stringify(apps));
         this.setState({allApps: apps});
       })
       .catch(e => console.log('Unable to getApps?', e));
 
     UpdateAPK.getNonSystemApps()
       .then(apps => {
-        console.log('Installed Non-System Apps: ', JSON.stringify(apps));
+        // console.log('Installed Non-System Apps: ', JSON.stringify(apps));
         this.setState({allNonSystemApps: apps});
       })
       .catch(e => console.log('Unable to getNonSystemApps?', e));
