@@ -5,6 +5,7 @@ import {useAuth} from 'utils/AuthContext';
 import {SplashScreen} from 'screens/SplashScreen';
 import LoginScreen from 'screens/LogginScreen';
 import {NavBar} from 'navigation/NavBar';
+import UpdaterScreen from 'screens/UpdaterScreen';
 
 const Stack = createNativeStackNavigator();
 const screenOptions = {headerShown: false};
@@ -32,6 +33,7 @@ export const Navigator = () => {
         ) : (
           <>
             <Stack.Screen name="NavBar" component={NavBar} />
+            <Stack.Screen name="UpdaterScreen" component={UpdaterScreen} />
           </>
         )}
       </Stack.Navigator>

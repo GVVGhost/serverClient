@@ -5,8 +5,9 @@ import {useEffect, useState} from 'react';
 import {LongPressButton} from 'components/buttons/LongPressButton';
 import {CardItemsStyles} from 'styles/CardItemsStyles';
 import {clearAsyncStorage, fetchData} from 'utils/AsyncStorageHelper';
+import CustomButton from 'components/buttons/CustomButton';
 
-function SettingsScreen() {
+function SettingsScreen({navigation}) {
   const showToast = text => ToastAndroid.show(text, ToastAndroid.LONG);
   const {setIsSignedIn} = useAuth();
   const [userName, setUserName] = useState('');
@@ -29,7 +30,7 @@ function SettingsScreen() {
       <View style={{margin: 12, flexDirection: 'column'}}>
         <View style={CardItemsStyles.container}>
           <Text style={CardItemsStyles.title}>
-            Current application version: 1.0.5
+            Current application version: 1.0.6
           </Text>
           <Text style={CardItemsStyles.value}>Current user: {userName}</Text>
         </View>
@@ -38,6 +39,10 @@ function SettingsScreen() {
           title="Hold on to logout"
           onPress={() => showToast('Hold the button at least 1 sec to logout')}
           onLongPress={handleLogout}
+        />
+        <CustomButton
+          onPress={() => navigation.navigate('UpdaterScreen')}
+          text="UpdaterScreen"
         />
       </View>
     </View>
