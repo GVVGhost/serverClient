@@ -19,7 +19,7 @@ export default class App extends Component<Props> {
     // eslint-disable-next-line no-undef
     updater = new UpdateAPK.UpdateAPK({
       apkVersionUrl:
-        'https://raw.githubusercontent.com/GVVGhost/serverClient/main/testMobile/test-version.json',
+        'https://github.com/GVVGhost/serverClient/blob/main/testMobile/test-version.json?raw=true',
       apkVersionOptions: {
         method: 'GET',
         headers: {},
@@ -27,18 +27,18 @@ export default class App extends Component<Props> {
       apkOptions: {
         headers: {},
       },
-      fileProviderAuthority: 'com.example.provider',
+      fileProviderAuthority: 'com.testmobile.provider',
       needUpdateApp: performUpdate => {
         Alert.alert(
           'Update Available',
-          'New version released, do you want to update? ' +
-            [
-              {
-                text: 'Cancel',
-                onPress: () => {},
-              },
-              {text: 'Update', onPress: () => performUpdate(true)},
-            ],
+          'New version released, do you want to update? ',
+          [
+            {
+              text: 'Cancel',
+              onPress: () => {},
+            },
+            {text: 'Update', onPress: () => performUpdate(true)},
+          ],
         );
       },
       forceUpdateApp: () => {
@@ -72,17 +72,19 @@ export default class App extends Component<Props> {
   async componentDidMount() {
     UpdateAPK.getApps()
       .then(apps => {
-        // console.log('Installed Apps: ', JSON.stringify(apps));
+        console.log('Installed Apps: ', JSON.stringify(apps));
         this.setState({allApps: apps});
       })
       .catch(e => console.log('Unable to getApps?', e));
 
     UpdateAPK.getNonSystemApps()
       .then(apps => {
-        // console.log('Installed Non-System Apps: ', JSON.stringify(apps));
+        console.log('Installed Non-System Apps: ', JSON.stringify(apps));
         this.setState({allNonSystemApps: apps});
       })
       .catch(e => console.log('Unable to getNonSystemApps?', e));
+
+    this._onCheckServerVersion();
   }
 
   _onCheckServerVersion = () => {

@@ -29,7 +29,7 @@ function SettingsScreen() {
       <View style={{margin: 12, flexDirection: 'column'}}>
         <View style={CardItemsStyles.container}>
           <Text style={CardItemsStyles.title}>
-            Current application version: 1.0.0
+            Current application version: 1.0.3
           </Text>
           <Text style={CardItemsStyles.value}>Current user: {userName}</Text>
         </View>
