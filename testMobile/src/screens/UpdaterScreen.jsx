@@ -2,13 +2,16 @@
 import React, {Component} from 'react';
 import {
   Alert,
-  Button,
-  SafeAreaView,
-  ScrollView,
+  Dimensions,
   StyleSheet,
   Text,
+  ToastAndroid,
+  View,
 } from 'react-native';
 import * as UpdateAPK from 'rn-update-apk';
+import {Colors} from 'styles/Colors';
+import CustomButton from 'components/buttons/CustomButton';
+import * as Progress from 'react-native-progress';
 
 type Props = {};
 export default class UpdaterScreen extends Component<Props> {
@@ -51,7 +54,8 @@ export default class UpdaterScreen extends Component<Props> {
       },
 
       notNeedUpdateApp: () => {
-        console.log('notNeedUpdateApp callback called');
+        // console.log('notNeedUpdateApp callback called');
+        this.showToast('Already updated');
       },
 
       downloadApkStart: () => {
@@ -59,36 +63,33 @@ export default class UpdaterScreen extends Component<Props> {
       },
 
       downloadApkProgress: progress => {
-        console.log(`downloadApkProgress callback called - ${progress}%...`);
+        // console.log(`downloadApkProgress callback called - ${progress}%...`);
         this.setState({downloadProgress: progress});
       },
 
       downloadApkEnd: () => {
         console.log('downloadApkEnd callback called');
+        this.setState({downloadProgress: -1});
       },
 
       onError: err => {
         console.log('onError callback called', err);
         Alert.alert('There was an error', err.message);
+        this.setState({downloadProgress: -1});
       },
     });
   }
 
-  async componentDidMount() {
-    UpdateAPK.getApps()
-      .then(apps => {
-        console.log('Installed Apps: ', JSON.stringify(apps));
-        this.setState({allApps: apps});
-      })
-      .catch(e => console.log('Unable to getApps?', e));
+  showToast = text => ToastAndroid.show(text, ToastAndroid.LONG);
 
-    UpdateAPK.getNonSystemApps()
-      .then(apps => {
-        console.log('Installed Non-System Apps: ', JSON.stringify(apps));
-        this.setState({allNonSystemApps: apps});
-      })
-      .catch(e => console.log('Unable to getNonSystemApps?', e));
-  }
+  timeAndDate = obj => {
+    return (
+      ' ' +
+      new Date(obj).toLocaleDateString() +
+      ' at ' +
+      new Date(obj).toLocaleTimeString()
+    );
+  };
 
   _onCheckServerVersion = () => {
     console.log('checking for update');
@@ -98,79 +99,121 @@ export default class UpdaterScreen extends Component<Props> {
 
   render() {
     return (
-      <SafeAreaView style={styles.container}>
-        <Text style={styles.welcome}>rn-update-apk example</Text>
-        <Text style={styles.instructions}>
-          Installed Package Name: {UpdateAPK.getInstalledPackageName()}
-        </Text>
-        <Text style={styles.instructions}>
-          Installed Version Code: {UpdateAPK.getInstalledVersionCode()}
-        </Text>
-        <Text style={styles.instructions}>
-          Installed Version Name: {UpdateAPK.getInstalledVersionName()}
-        </Text>
-        <Text style={styles.instructions}>
-          Installed First Install Time:
-          {new Date(+UpdateAPK.getInstalledFirstInstallTime()).toUTCString()}
-        </Text>
-        <Text style={styles.instructions}>
-          Installed Last Update Time:
-          {new Date(+UpdateAPK.getInstalledLastUpdateTime()).toUTCString()}
-        </Text>
-        <Text style={styles.instructions}>
-          Installed Package Installer:
-          {UpdateAPK.getInstalledPackageInstaller()}
-        </Text>
-        <ScrollView style={{flex: 1}}>
+      <View style={styles.cardContainer}>
+        <View style={styles.subCardContainer}>
+          <Text style={styles.title}>testMobile app</Text>
           <Text style={styles.instructions}>
-            Installed Apps: {JSON.stringify(this.state.allApps, null, '\t')}
+            Package Name:
+            <Text style={styles.instructionsBold}>
+              {' ' + UpdateAPK.getInstalledPackageName()}
+            </Text>
           </Text>
           <Text style={styles.instructions}>
-            Installed Non-System Apps:{' '}
-            {JSON.stringify(this.state.allNonSystemApps, null, '\t')}
+            Version Code:
+            <Text style={styles.instructionsBold}>
+              {' ' + UpdateAPK.getInstalledVersionCode()}
+            </Text>
           </Text>
           <Text style={styles.instructions}>
-            Installed Package Certificate SHA-256 Digest:
-            {UpdateAPK.getInstalledSigningInfo()
-              ? UpdateAPK.getInstalledSigningInfo()[0].thumbprint
-              : ''}
+            Version Name:
+            <Text style={styles.instructionsBold}>
+              {' ' + UpdateAPK.getInstalledVersionName()}
+            </Text>
           </Text>
           <Text style={styles.instructions}>
-            {UpdateAPK.getInstalledSigningInfo()
-              ? UpdateAPK.getInstalledSigningInfo()[0].toString
-              : ''}
+            Installed:
+            <Text style={styles.instructionsBold}>
+              {this.timeAndDate(+UpdateAPK.getInstalledFirstInstallTime())}
+            </Text>
           </Text>
-        </ScrollView>
+          <Text style={styles.instructions}>
+            Updated:
+            <Text style={styles.instructionsBold}>
+              {this.timeAndDate(+UpdateAPK.getInstalledLastUpdateTime())}
+            </Text>
+          </Text>
+        </View>
         {this.state?.downloadProgress !== -1 && (
-          <Text style={styles.instructions}>
-            Download Progress: {this.state?.downloadProgress}%
-          </Text>
+          <View
+            style={{
+              flex: 1,
+              alignItems: 'center',
+              marginVertical: 40,
+            }}>
+            <Text style={styles.instructions}>
+              Download Progress: {this.state?.downloadProgress}%
+            </Text>
+            <Progress.Bar
+              progress={this.state.downloadProgress / 100}
+              unfilledColor={Colors.white}
+              height={40}
+              width={Dimensions.get('window').width * 0.8}
+              borderRadius={30}
+              color={Colors.primary}
+            />
+          </View>
         )}
-        <Button
-          title="Check Server For Update"
+        {/*<CustomButton
+          text="Check For Update"
+          onPress={() => {
+            this.setState({downloadProgress: 0});
+            setInterval(() => {
+              if (this.state.downloadProgress < 100) {
+                this.setState({
+                  downloadProgress: this.state.downloadProgress + 10,
+                });
+              } else {
+                clearInterval(this.interval);
+              }
+            }, 1);
+          }}
+        />*/}
+
+        <CustomButton
+          text="Check For Update"
           onPress={this._onCheckServerVersion}
         />
-      </SafeAreaView>
+      </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
-  container: {
+  cardContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
+    minHeight: 50,
+    borderWidth: 1,
+    borderRadius: 16,
+    padding: 16,
     margin: 10,
+    borderColor: Colors.borders,
+    backgroundColor: Colors.background,
+  },
+  subCardContainer: {
+    flex: 1,
+  },
+  title: {
+    fontSize: 30,
+    marginBottom: 8,
+    fontStyle: 'italic',
+    borderBottomWidth: 1,
+    color: Colors.text,
+    borderColor: Colors.borders,
   },
   instructions: {
-    fontSize: 12,
+    fontSize: 16,
     textAlign: 'left',
-    color: '#333333',
+    color: Colors.text,
     marginBottom: 5,
+  },
+  instructionsBold: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'left',
+    color: Colors.text,
+    marginBottom: 5,
+  },
+  progressBar: {
+    backgroundColor: Colors.background,
   },
 });

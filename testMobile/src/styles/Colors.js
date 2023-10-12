@@ -7,6 +7,6 @@ export const Colors = {
   white: '#ffffff',
   accent: '#a8e9f5',
   text: '#4b7896',
-  borders: '#898be5',
+  borders: '#949494',
   error: '#86374c',
 };
